@@ -151,7 +151,8 @@
 ;;;;;;;;;;;;;;;;Excersice 7;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn change-coord-value [board coord new-value]
-  (assoc-in board coord new-value))
+  (assoc-in board coord new-value)
+  )
 
 (defn find-zero-cell [board]
   ;returns first cell it finds with a zero
@@ -160,10 +161,31 @@
          )
   )
 
+(defn solver-subset [current-board]
+  ;logic: use the same structure as the subset sum problem,
+  ;1) check if current board valid, if true just return the board
+  ;2) if not valid then find an empty place on the current board (need helper-func)
+  ;3) find a valid value for that empty place on the current board
+  ;4) keep inserting values at that point till the board becomes valid. (hard part)
+  (if (filled? current-board)
+    (if (valid-solution? current-board) [current-board] []) ;if true return current board
+    (let [zero-cell-position (find-zero-cell current-board)]  ;else find an empty empty cell position
+      ;find valid values for the current point
+      ;for every value found call solver-subset again on the changed board
+      ;and check all over again for a valid solution till we eventually find one.
+      ;pls work.
+      (for [valid-cell-value (valid-values-for current-board zero-cell-position)
+            solution (solver-subset (change-coord-value current-board zero-cell-position valid-cell-value))]
+        solution)))
+  )
 
+(defn solve [board]
+  (first (solver-subset board))
+  )
 
-
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;Testing;;;;;;;;;;;;;;;;::::
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn -main
   [& args]
@@ -211,5 +233,8 @@
   (println (str "valid solution for solved-board? ") (valid-solution? solved-board))
 
   (println (str "\n****** EXERCISE 7 ******"))
-
+  (println (str "---Unsolved Board: "))
+  (pprint sudoku-board)
+  (println (str "---Solved Board: "))
+  (pprint (solve sudoku-board))
   )
